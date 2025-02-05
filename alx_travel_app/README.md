@@ -60,7 +60,7 @@ CHAPA_WEBHOOK_URL=https://your-domain.com/chapa/webhook/
 ```
 ## API Endpoints
 --------------------------------------|--------------|----------------------|
-### Endpoint                          | ### Method   |  ### Description     |
+Endpoint                              |Method        |Description           |
 --------------------------------------|--------------|----------------------|
 `/api/payments/initiate/<booking_id>/`|   POST       | Start payment process|
 --------------------------------------|--------------|----------------------|
