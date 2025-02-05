@@ -59,13 +59,13 @@ CHAPA_SECRET_KEY=your_secret_key
 CHAPA_WEBHOOK_URL=https://your-domain.com/chapa/webhook/
 ```
 ## API Endpoints
---------------------------------------|--------------|----------------------|
+
+
 Endpoint                              |Method        |Description           |
 --------------------------------------|--------------|----------------------|
 `/api/payments/initiate/<booking_id>/`|   POST       | Start payment process|
 --------------------------------------|--------------|----------------------|
 `/api/payments/verify/<tx_ref>/`      |   GET        | Verify payment status|
---------------------------------------|--------------|----------------------|
 
 ## Payment Workflow
 
