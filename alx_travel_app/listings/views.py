@@ -2,8 +2,10 @@ import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.shortcuts import render
+from django.urls import reverse
 from rest_framework.viewsets import ModelViewSet
 from .models import Listing, Booking, Payment
 from .serializers import ListingSerializer, BookingSerializer
@@ -38,6 +40,17 @@ class BookingViewSet(ModelViewSet):
         }, status=status.HTTP_201_CREATED)
 
 
+class BookingCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BookingSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
 class InitiatePayment(APIView):
     def post(self, request, booking_id):
         try:
@@ -55,9 +68,9 @@ class InitiatePayment(APIView):
                 "email": request.user.email,
                 "first_name": request.user.first_name,
                 "last_name": request.user.last_name,
-                "tx_ref": f"alxtravel-{booking_id}-{uuid.uuid4().hex}",
-                "callback_url": settings.CHAPA_WEBHOOK_URL,
-                "return_url": f"https://my_frontend.com/bookings/{booking_id}/status"
+                "tx_ref": f"booking_{booking.id}",
+                #"callback_url": settings.CHAPA_WEBHOOK_URL,
+                #"return_url": f"https://my_frontend.com/bookings/{booking_id}/status"
             }
 
             response = requests.post(
@@ -70,6 +83,7 @@ class InitiatePayment(APIView):
                 data = response.json()
                 Payment.objects.create(
                     booking=booking,
+
                     amount=amount,
                     chapa_tx_ref=payload['tx_ref'],
                     transaction_id=data.get('data', {}).get('id'),
@@ -103,6 +117,7 @@ class VerifyPayment(APIView):
                 payment.status = 'completed' if data['status'] == 'success' else 'failed'
                 payment.transaction_id = data['data']['id']
                 payment.save()
+
 
                 if payment.status == 'completed':
                     # Trigger confirmation email
